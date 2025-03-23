@@ -1,5 +1,6 @@
 package io.spring.service;
 
+import io.spring.dto.CustomPaginationAPIResponse;
 import io.spring.dto.PostDTO;
 import io.spring.response.ApiResponse;
 
@@ -16,5 +17,9 @@ public interface PostService {
     ApiResponse<PostDTO> updatePost(Long id, PostDTO postDTO);
 
     ApiResponse<Void> deletePost(Long id);
+
+    ApiResponse<CustomPaginationAPIResponse> getPaginatedPosts(int pageNo, int pageSize);
+
+    ApiResponse<CustomPaginationAPIResponse> getPaginatedAndSortedPosts(int pageNo, int pageSize, String sortBy, String sortDir);
 
 }

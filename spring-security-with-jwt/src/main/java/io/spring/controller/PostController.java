@@ -1,8 +1,10 @@
 package io.spring.controller;
 
+import io.spring.dto.CustomPaginationAPIResponse;
 import io.spring.dto.PostDTO;
 import io.spring.response.ApiResponse;
 import io.spring.service.PostService;
+import io.spring.utils.AppConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,6 +50,24 @@ public class PostController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deletePost(@PathVariable Long id) {
         ApiResponse<Void> response = postService.deletePost(id);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/paginated")
+    public ResponseEntity<ApiResponse<CustomPaginationAPIResponse>> getPaginatedPosts(
+            @RequestParam(value = "pageNo", defaultValue = AppConstants.DEFAULT_PAGE_NO + "", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE + "", required = false) int pageSize) {
+        ApiResponse<CustomPaginationAPIResponse> response = postService.getPaginatedPosts(pageNo, pageSize);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/paginated-and-sorted")
+    public ResponseEntity<ApiResponse<CustomPaginationAPIResponse>> getPaginatedAndSortedPosts(
+            @RequestParam(value = "pageNo", defaultValue = AppConstants.DEFAULT_PAGE_NO + "", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE + "", required = false) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIR, required = false) String sortDir) {
+        ApiResponse<CustomPaginationAPIResponse> response = postService.getPaginatedAndSortedPosts(pageNo, pageSize, sortBy, sortDir);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
