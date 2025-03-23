@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import io.spring.entity.User;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -14,6 +15,9 @@ import java.util.Map;
 
 @Component
 public class JwtUtil {
+
+    @Value("${jwt.secret-key}")
+    private String secretKey;
 
     public String generateToken(User user) {
         Map<String, Object> claims = new HashMap<>();
@@ -33,7 +37,6 @@ public class JwtUtil {
 
     private SecretKey generateKey() {
         // openssl rand -base64 32
-        String secretKey = "s639FcH23cFM8XPeFVWvgNkvC8bih2XE+K0o0ztQ9Hk=";
         byte[] decode = Base64.getDecoder().decode(secretKey);
         return Keys.hmacShaKeyFor(decode);
     }
