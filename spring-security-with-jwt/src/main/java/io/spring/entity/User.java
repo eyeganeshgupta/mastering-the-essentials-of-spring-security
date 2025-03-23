@@ -109,4 +109,19 @@ public class User {
     public void setLastLogin(LocalDateTime lastLogin) {
         this.lastLogin = lastLogin;
     }
+
+    @Override
+    public String toString() {
+        return "\n👥================= User Details =================👥" +
+                "\n🆔 **ID**:                        " + id +
+                "\n👤 **Username**:                  " + username +
+                "\n🔒 **Password**:                  [Hidden for Security]" +
+                "\n📧 **Email**:                     " + email +
+                "\n👫 **First Name**:                " + firstName +
+                "\n👫 **Last Name**:                 " + lastName +
+                "\n📆 **Registration Date**:        " + registrationDate +
+                "\n🕰️ **Last Login**:                " + (lastLogin != null ? lastLogin : "Not logged in yet") +
+                "\n==============================================";
+    }
+
 }

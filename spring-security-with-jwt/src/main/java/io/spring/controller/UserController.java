@@ -27,8 +27,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<?>> loginUser(@RequestBody LoginRequest loginRequest) {
-        ApiResponse<?> response = userService.loginUser(loginRequest);
+    public ResponseEntity<ApiResponse<String>> loginUser(@RequestBody LoginRequest loginRequest) {
+        ApiResponse<String> response = userService.loginUser(loginRequest);
         return new ResponseEntity<>(response, response.isSuccess() ? HttpStatus.OK : HttpStatus.UNAUTHORIZED);
     }
 }

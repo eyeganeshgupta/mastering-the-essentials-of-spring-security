@@ -5,7 +5,11 @@ import io.spring.dto.RegisterRequest;
 import io.spring.entity.User;
 import io.spring.repository.UserRepository;
 import io.spring.response.ApiResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.spring.security.jwt.JwtUtil;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,11 +21,14 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
 
-    @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
+        this.jwtUtil = jwtUtil;
     }
 
     public ApiResponse<User> registerUser(RegisterRequest registerRequest) {
@@ -48,7 +55,7 @@ public class UserService {
         return new ApiResponse<>(true, "User registered successfully", user);
     }
 
-    public ApiResponse<User> loginUser(LoginRequest loginRequest) {
+    public ApiResponse<String> loginUser(LoginRequest loginRequest) {
         Optional<User> userOptional = userRepository.findByUsername(loginRequest.getUsername());
 
         if (userOptional.isEmpty()) {
@@ -56,15 +63,26 @@ public class UserService {
         }
 
         User user = userOptional.get();
-        boolean isPasswordMatch = passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
 
-        if (!isPasswordMatch) {
-            return new ApiResponse<>(false, "Invalid username or password", null);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
+
+        try {
+            // Authenticate using the AuthenticationManager
+            Authentication result = authenticationManager.authenticate(authentication);
+
+            SecurityContextHolder.getContext().setAuthentication(result);
+
+            if (result.isAuthenticated()) {
+                System.out.println("Inside isAuthenticated");
+                user.setLastLogin(LocalDateTime.now());
+                userRepository.save(user);
+                return new ApiResponse<>(true, "Successfully logged in", jwtUtil.generateToken(user));
+            } else {
+                return new ApiResponse<>(false, "Invalid username or password", null);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ApiResponse<>(false, e.getMessage(), null);
         }
-
-        user.setLastLogin(LocalDateTime.now());
-        userRepository.save(user);
-
-        return new ApiResponse<>(true, "Login successful", user);
     }
 }
