@@ -1,10 +1,13 @@
 package io.spring.service.impl;
 
+import io.spring.dto.CommentDTO;
 import io.spring.dto.CustomPaginationAPIResponse;
 import io.spring.dto.PostDTO;
 import io.spring.entity.Post;
+import io.spring.entity.Comment;
 import io.spring.exception.ResourceNotFoundException;
 import io.spring.repository.PostRepository;
+import io.spring.repository.CommentRepository;
 import io.spring.response.ApiResponse;
 import io.spring.service.PostService;
 import org.modelmapper.ModelMapper;
@@ -22,11 +25,13 @@ import java.util.stream.Collectors;
 public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
     private final ModelMapper modelMapper;
 
     @Autowired
-    public PostServiceImpl(PostRepository postRepository, ModelMapper modelMapper) {
+    public PostServiceImpl(PostRepository postRepository, CommentRepository commentRepository, ModelMapper modelMapper) {
         this.postRepository = postRepository;
+        this.commentRepository = commentRepository;
         this.modelMapper = modelMapper;
     }
 
@@ -35,7 +40,6 @@ public class PostServiceImpl implements PostService {
         Post post = modelMapper.map(postDTO, Post.class);
         Post savedPost = postRepository.save(post);
         PostDTO savedPostDTO = modelMapper.map(savedPost, PostDTO.class);
-
         return new ApiResponse<>(true, "Post created successfully", savedPostDTO);
     }
 
@@ -43,7 +47,16 @@ public class PostServiceImpl implements PostService {
     public ApiResponse<List<PostDTO>> getAllPosts() {
         List<Post> posts = postRepository.findAll();
         List<PostDTO> postDTOs = posts.stream()
-                .map(post -> modelMapper.map(post, PostDTO.class))
+                .map(post -> {
+                    List<Comment> comments = commentRepository.findByPost(post);
+                    List<CommentDTO> commentDTOs = comments.stream()
+                            .map(comment -> modelMapper.map(comment, CommentDTO.class))
+                            .collect(Collectors.toList());
+
+                    PostDTO postDTO = modelMapper.map(post, PostDTO.class);
+                    postDTO.setComments(commentDTOs);
+                    return postDTO;
+                })
                 .collect(Collectors.toList());
 
         return new ApiResponse<>(true, "Posts retrieved successfully", postDTOs);
@@ -53,7 +66,14 @@ public class PostServiceImpl implements PostService {
     public ApiResponse<PostDTO> getPostById(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "id", id.toString()));
+
+        List<Comment> comments = commentRepository.findByPost(post);
+        List<CommentDTO> commentDTOs = comments.stream()
+                .map(comment -> modelMapper.map(comment, CommentDTO.class))
+                .collect(Collectors.toList());
+
         PostDTO postDTO = modelMapper.map(post, PostDTO.class);
+        postDTO.setComments(commentDTOs);
 
         return new ApiResponse<>(true, "Post retrieved successfully", postDTO);
     }
@@ -63,13 +83,21 @@ public class PostServiceImpl implements PostService {
         Post existingPost = postRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "id", id.toString()));
 
-        existingPost.setTitle(postDTO.getTitle());
-        existingPost.setDescription(postDTO.getDescription());
-        existingPost.setContent(postDTO.getContent());
+        if (postDTO.getTitle() != null && !postDTO.getTitle().trim().isEmpty()) {
+            existingPost.setTitle(postDTO.getTitle());
+        }
+
+        if (postDTO.getDescription() != null && !postDTO.getDescription().trim().isEmpty()) {
+            existingPost.setDescription(postDTO.getDescription());
+        }
+
+        if (postDTO.getContent() != null && !postDTO.getContent().trim().isEmpty()) {
+            existingPost.setContent(postDTO.getContent());
+        }
 
         Post updatedPost = postRepository.save(existingPost);
-        PostDTO updatedPostDTO = modelMapper.map(updatedPost, PostDTO.class);
 
+        PostDTO updatedPostDTO = modelMapper.map(updatedPost, PostDTO.class);
         return new ApiResponse<>(true, "Post updated successfully", updatedPostDTO);
     }
 
@@ -79,7 +107,6 @@ public class PostServiceImpl implements PostService {
             throw new ResourceNotFoundException("Post", "id", id.toString());
         }
         postRepository.deleteById(id);
-
         return new ApiResponse<>(true, "Post deleted successfully", null);
     }
 
@@ -88,7 +115,15 @@ public class PostServiceImpl implements PostService {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         Page<Post> page = postRepository.findAll(pageable);
         List<PostDTO> postDTOs = page.getContent().stream()
-                .map(post -> modelMapper.map(post, PostDTO.class))
+                .map(post -> {
+                    List<Comment> comments = commentRepository.findByPost(post);
+                    List<CommentDTO> commentDTOs = comments.stream()
+                            .map(comment -> modelMapper.map(comment, CommentDTO.class))
+                            .collect(Collectors.toList());
+                    PostDTO postDTO = modelMapper.map(post, PostDTO.class);
+                    postDTO.setComments(commentDTOs);
+                    return postDTO;
+                })
                 .collect(Collectors.toList());
 
         CustomPaginationAPIResponse response = new CustomPaginationAPIResponse(
@@ -111,7 +146,15 @@ public class PostServiceImpl implements PostService {
 
         Page<Post> page = postRepository.findAll(pageable);
         List<PostDTO> postDTOs = page.getContent().stream()
-                .map(post -> modelMapper.map(post, PostDTO.class))
+                .map(post -> {
+                    List<Comment> comments = commentRepository.findByPost(post);
+                    List<CommentDTO> commentDTOs = comments.stream()
+                            .map(comment -> modelMapper.map(comment, CommentDTO.class))
+                            .collect(Collectors.toList());
+                    PostDTO postDTO = modelMapper.map(post, PostDTO.class);
+                    postDTO.setComments(commentDTOs);
+                    return postDTO;
+                })
                 .collect(Collectors.toList());
 
         CustomPaginationAPIResponse response = new CustomPaginationAPIResponse(

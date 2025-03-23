@@ -1,17 +1,20 @@
 package io.spring.dto;
 
+import java.util.List;
+
 public class PostDTO {
     private Long id;
     private String title;
     private String description;
     private String content;
+    private List<CommentDTO> comments;
 
-    public PostDTO(Long id, String title, String description, String content) {
-        super();
+    public PostDTO(Long id, String title, String description, String content, List<CommentDTO> comments) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.content = content;
+        this.comments = comments;
     }
 
     public PostDTO() {
@@ -48,5 +51,13 @@ public class PostDTO {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public List<CommentDTO> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<CommentDTO> comments) {
+        this.comments = comments;
     }
 }
