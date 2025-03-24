@@ -12,7 +12,7 @@ import java.util.Set;
                 @UniqueConstraint(name = "uk_post_title", columnNames = {"title"})
         }
 )
-public class Post {
+public class Post extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

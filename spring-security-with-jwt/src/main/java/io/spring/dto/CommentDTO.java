@@ -1,9 +1,23 @@
 package io.spring.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 public class CommentDTO {
+
     private Long id;
+
+    @NotBlank(message = "Name cannot be blank")
+    @Size(min = 2, max = 50, message = "Name must be between 2 and 50 characters")
     private String name;
+
+    @NotBlank(message = "Email cannot be blank")
+    @Email(message = "Email should be valid")
     private String email;
+
+    @NotBlank(message = "Text cannot be blank")
+    @Size(max = 1000, message = "Text cannot be longer than 1000 characters")
     private String text;
 
     public CommentDTO() {
@@ -48,5 +62,4 @@ public class CommentDTO {
     public void setText(String text) {
         this.text = text;
     }
-
 }

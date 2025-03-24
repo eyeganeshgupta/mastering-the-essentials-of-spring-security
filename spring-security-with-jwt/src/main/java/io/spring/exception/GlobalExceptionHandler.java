@@ -12,11 +12,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -28,11 +32,19 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
+    /*
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<ApiResponse<ErrorDetails>> handleExpiredJwtException(ExpiredJwtException exception, WebRequest webRequest) {
         ErrorDetails errorDetails = new ErrorDetails(new Date(), "JWT token is expired", webRequest.getDescription(false));
         ApiResponse<ErrorDetails> response = new ApiResponse<>(false, "JWT token is expired", errorDetails);
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    }
+     */
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<String> handleExpiredJwtException(ExpiredJwtException ex) {
+        String errorMessage = "JWT Token has expired. Please authenticate again.";
+        return new ResponseEntity<>(errorMessage, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(SignatureException.class)
@@ -119,11 +131,16 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ApiResponse<ErrorDetails>> handleJwtBadCredentialsException(BadCredentialsException exception, WebRequest webRequest) {
-        ErrorDetails errorDetails = new ErrorDetails(new Date(), "Invalid JWT token", webRequest.getDescription(false));
-        ApiResponse<ErrorDetails> response = new ApiResponse<>(false, "Invalid JWT token", errorDetails);
-        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<ErrorDetails>> handleValidationExceptions(MethodArgumentNotValidException ex, WebRequest webRequest) {
+        List<FieldError> errors = ex.getBindingResult().getFieldErrors();
+        List<String> errorMessages = errors.stream()
+                .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
+                .collect(Collectors.toList());
+
+        ErrorDetails errorDetails = new ErrorDetails(new Date(), errorMessages.toString(), webRequest.getDescription(false));
+        ApiResponse<ErrorDetails> response = new ApiResponse<>(false, errorMessages.toString(), errorDetails);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)

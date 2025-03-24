@@ -3,6 +3,7 @@ package io.spring.controller;
 import io.spring.dto.CommentDTO;
 import io.spring.response.ApiResponse;
 import io.spring.service.CommentService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ public class CommentController {
     }
 
     @PostMapping("/{postId}/comments")
-    public ResponseEntity<ApiResponse<CommentDTO>> createComment(@PathVariable Long postId, @RequestBody CommentDTO commentDTO) {
+    public ResponseEntity<ApiResponse<CommentDTO>> createComment(@PathVariable Long postId, @Valid @RequestBody CommentDTO commentDTO) {
         ApiResponse<CommentDTO> response = commentService.createComment(postId, commentDTO);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }

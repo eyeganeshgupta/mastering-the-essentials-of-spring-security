@@ -1,12 +1,25 @@
 package io.spring.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 import java.util.List;
 
 public class PostDTO {
+
     private Long id;
+
+    @NotBlank(message = "Title cannot be blank")
+    @Size(min = 3, max = 255, message = "Title must be between 3 and 100 characters")
     private String title;
+
+    @NotBlank(message = "Description cannot be blank")
+    @Size(max = 255, message = "Description cannot be longer than 500 characters")
     private String description;
+
+    @NotBlank(message = "Content cannot be blank")
     private String content;
+
     private List<CommentDTO> comments;
 
     public PostDTO(Long id, String title, String description, String content, List<CommentDTO> comments) {

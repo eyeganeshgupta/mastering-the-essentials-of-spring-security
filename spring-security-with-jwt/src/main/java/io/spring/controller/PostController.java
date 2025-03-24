@@ -5,6 +5,7 @@ import io.spring.dto.PostDTO;
 import io.spring.response.ApiResponse;
 import io.spring.service.PostService;
 import io.spring.utils.AppConstants;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<PostDTO>> createPost(@RequestBody PostDTO postDTO) {
+    public ResponseEntity<ApiResponse<PostDTO>> createPost(@Valid @RequestBody PostDTO postDTO) {
         ApiResponse<PostDTO> response = postService.createPost(postDTO);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
