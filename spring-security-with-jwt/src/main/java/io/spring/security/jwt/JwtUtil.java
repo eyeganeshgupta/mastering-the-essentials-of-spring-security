@@ -26,7 +26,7 @@ public class JwtUtil {
     public String generateToken(User user) {
         Map<String, Object> claims = new HashMap<>();
 
-        long fourteenDaysInMillis = 14L * 24 * 60 * 60 * 1000;
+        long twentyOneDaysInMillis = 21L * 24 * 60 * 60 * 1000;
 
         return Jwts
                 .builder()
@@ -35,7 +35,7 @@ public class JwtUtil {
                 .subject(user.getUsername())
                 .issuer("universe")
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + fourteenDaysInMillis))
+                .expiration(new Date(System.currentTimeMillis() + twentyOneDaysInMillis))
                 .and()
                 .signWith(generateKey())
                 .compact();
