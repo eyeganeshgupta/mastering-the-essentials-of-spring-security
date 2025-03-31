@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,6 +32,7 @@ public class SmartphoneController {
         this.smartphoneService = smartphoneService;
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'PRODUCT_MANAGER')")
     @PostMapping
     public ResponseEntity<Smartphone> createSmartphone(@PathVariable String tenantId,
                                                        @RequestBody Smartphone smartphone) {
@@ -40,6 +42,7 @@ public class SmartphoneController {
         return new ResponseEntity<>(savedSmartphone, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'SALES', 'PRODUCT_MANAGER')")
     @GetMapping
     public ResponseEntity<List<Smartphone>> getAllSmartphones(@PathVariable String tenantId) {
         logger.info("Fetching all smartphones for tenant {}", tenantId);
@@ -48,6 +51,7 @@ public class SmartphoneController {
         return new ResponseEntity<>(smartphones, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'SALES', 'PRODUCT_MANAGER', 'TEST_ENGINEER')")
     @GetMapping("/{id}")
     public ResponseEntity<Smartphone> getSmartphoneById(@PathVariable String tenantId, @PathVariable Long id) {
         logger.info("Fetching smartphone with ID {} for tenant {}", id, tenantId);
@@ -63,6 +67,7 @@ public class SmartphoneController {
                 });
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<Smartphone> updateSmartphone(
             @PathVariable String tenantId,
@@ -79,6 +84,7 @@ public class SmartphoneController {
         return new ResponseEntity<>(updatedSmartphone, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteSmartphone(@PathVariable String tenantId, @PathVariable Long id) {
         logger.info("Deleting smartphone with ID {} for tenant {}", id, tenantId);
