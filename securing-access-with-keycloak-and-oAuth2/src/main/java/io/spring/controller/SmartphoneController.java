@@ -35,7 +35,7 @@ public class SmartphoneController {
     @PreAuthorize("hasAnyRole('ADMIN', 'PRODUCT_MANAGER')")
     @PostMapping
     public ResponseEntity<Smartphone> createSmartphone(@PathVariable String tenantId,
-                                                       @RequestBody Smartphone smartphone) {
+            @RequestBody Smartphone smartphone) {
         logger.info("Creating a new smartphone for tenant {}: {}", tenantId, smartphone.getName());
         Smartphone savedSmartphone = smartphoneService.saveSmartphone(smartphone);
         logger.info("Smartphone created with ID: {}", savedSmartphone.getId());

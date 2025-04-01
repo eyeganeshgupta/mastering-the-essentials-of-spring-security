@@ -1,17 +1,21 @@
 package io.spring.config;
 
-import org.slf4j.*;
-import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
-import org.springframework.context.annotation.*;
-import org.springframework.orm.jpa.*;
-import org.springframework.orm.jpa.vendor.*;
-import org.springframework.transaction.*;
-import org.springframework.transaction.annotation.*;
-
-import jakarta.persistence.EntityManagerFactory;
+import java.util.Map;
 
 import javax.sql.DataSource;
-import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+import jakarta.persistence.EntityManagerFactory;
 
 @Configuration
 @EnableTransactionManagement
@@ -21,7 +25,7 @@ public class JpaConfig {
 
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource,
-                                                                       JpaProperties jpaProperties) {
+            JpaProperties jpaProperties) {
 
         logger.info("Creating EntityManagerFactory...");
 
@@ -34,12 +38,12 @@ public class JpaConfig {
                 "hibernate.dialect", "org.hibernate.dialect.MySQL8Dialect",
                 "hibernate.hbm2ddl.auto", "update",
                 "hibernate.connection.provider_disables_autocommit", "true",
-                "hibernate.transaction.jta.platform", "org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform",
+                "hibernate.transaction.jta.platform",
+                "org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform",
                 "hibernate.jdbc.time_zone", "UTC",
                 "hibernate.jdbc.batch_size", "100",
                 "hibernate.order_inserts", "true",
-                "hibernate.format_sql", "true"
-        ));
+                "hibernate.format_sql", "true"));
 
         logger.info("EntityManagerFactory created with properties: {}", em.getJpaPropertyMap());
 

@@ -1,10 +1,12 @@
 package io.spring.service;
 
-import io.spring.domain.Smartphone;
-import io.spring.repository.SmartphoneRepository;
 import java.util.List;
 import java.util.Optional;
+
 import org.springframework.stereotype.Service;
+
+import io.spring.domain.Smartphone;
+import io.spring.repository.SmartphoneRepository;
 
 @Service
 public class SmartphoneService {
